@@ -4,7 +4,8 @@ const Stocks = (props) => {
       <main style={{ marginTop: "30px", padding: "10px" }}>
         <div className="row row-cols-2 row-cols-md-3 mb-3 text-center">
           {props.stocks.map((stock) => (
-            <div className="col">
+            // added stock index as key
+            <div className="col" key={stock.index}>
               <div className="card mb-4 rounded-3 shadow-sm">
                 <div className="card-header py-3">
                   <h4 className="my-0 fw-normal">${stock.price}</h4>
@@ -42,7 +43,7 @@ const Stocks = (props) => {
                       Sell Shares
                     </button>
                   )}
-                  
+
                 </div>
               </div>
             </div>

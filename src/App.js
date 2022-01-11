@@ -10,11 +10,10 @@ import staker from "./contracts/staker.abi.json";
 import IERC from "./contracts/ierc.abi.json";
 import Stocks from "./components/Stocks";
 import AddStock from "./components/AddStock";
+import Notification from "./components/Notification";
 
-const ERC20_DECIMALS = 18;
-
-const contractAddress = "0xc07d8aDD4087cA160216219db57453ee67CEfe0e";
-const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
+// import constants from constants.js
+import { ERC20_DECIMALS, contractAddress, cUSDContractAddress } from "./utils/constants";
 
 function App() {
   const [contract, setcontract] = useState(null);
@@ -23,6 +22,7 @@ function App() {
   const [cUSDBalance, setcUSDBalance] = useState(0);
   const [stakes, setStakes] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  let notification;
 
   const celoConnect = async () => {
     if (window.celo) {
@@ -36,14 +36,16 @@ function App() {
 
         kit.defaultAccount = user_address;
 
-        await setAddress(user_address);
-        await setKit(kit);
-        console.log(user_address);
+        // removed await
+        setAddress(user_address);
+        setKit(kit);
       } catch (error) {
-        console.log(error);
+        // removed error console.log and pushed error to notification
+        notification = error;
       }
     } else {
-      console.log("Error");
+      // send notice on failed connection
+      notification = "Couldn't make connection to CELO";
     }
   };
 
@@ -56,7 +58,8 @@ function App() {
       setcontract(contract);
       setcUSDBalance(USDBalance);
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
   }, [address, kit]);
   const getStocks = async () => {
@@ -82,7 +85,6 @@ function App() {
   };
 
   const buyStock = async (_index) => {
-    console.log("kflms");
     const cUSDContract = new kit.web3.eth.Contract(IERC, cUSDContractAddress);
     try {
       const price = new BigNumber(stakes[_index].price)
@@ -95,7 +97,8 @@ function App() {
       getBalance();
       getStocks();
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
   };
 
@@ -105,7 +108,8 @@ function App() {
       getBalance();
       getStocks();
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
   };
 
@@ -114,7 +118,8 @@ function App() {
       const admin = await contract.methods.isUserAdmin(address).call();
       setIsAdmin(admin);
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
   };
 
@@ -124,7 +129,8 @@ function App() {
         .addStake(_percentage, _price)
         .send({ from: address });
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
     getStocks();
   };
@@ -137,7 +143,6 @@ function App() {
     if (kit && address) {
       getBalance();
     } else {
-      console.log("no kit");
     }
   }, [kit, address]);
 
@@ -150,6 +155,7 @@ function App() {
   return (
     <div>
       <Navbar balance={cUSDBalance} />
+      {notification && <Notification msg={notification} />}
       <Stocks
         stocks={stakes}
         isAdmin={isAdmin}
