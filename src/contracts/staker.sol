@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT  
 
 pragma solidity >=0.7.0 <0.9.0;
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 interface IERC20Token {
   function transfer(address, uint256) external returns (bool);
@@ -15,7 +16,7 @@ interface IERC20Token {
 }
 
 contract Staker{
-        
+    using SafeMath for uint;
     struct Stake{
         address payable owner;
         uint percentage;
@@ -24,7 +25,7 @@ contract Staker{
         bool isBought;
     }
 
-    address internal adminAddress = 0xb7BF999D966F287Cd6A1541045999aD5f538D3c6;
+    address internal adminAddress = msg.sender;
 
 
     mapping (uint => Stake) internal stakes;
@@ -37,6 +38,7 @@ contract Staker{
 
     address internal cUsdTokenAddress = 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
 
+// function to add stake
     function addStake(
         uint _percentage,
         uint _price
@@ -53,7 +55,13 @@ contract Staker{
         stakeLength++;
         
     }
-
+// function to edit a stake
+    function editStake(uint _percentage, uint _price, uint _index)public isAdmin(){
+        Stake storage stake = stakes[_index];
+        stake.percentage = _percentage;
+        stake.price = _price;
+    }
+// function to get stake
     function getStake(uint _index)public view returns(
         address payable,
         uint,
@@ -70,9 +78,9 @@ contract Staker{
             stake.isBought
         );
     }
-
+// function to check if user is admin
     function isUserAdmin(address _address) public view returns (bool){
-        if(_address ==adminAddress){
+        if(_address == adminAddress){
             return true;
         }else{
           return false;  
@@ -80,6 +88,7 @@ contract Staker{
         
     }
 
+// function to buy stake
     function buyStake(uint _index)public payable{
         require(
             IERC20Token(cUsdTokenAddress).transferFrom(
@@ -93,11 +102,12 @@ contract Staker{
         stakes[_index].owner = payable(msg.sender);
         stakes[_index].isBought = true;
     }
-
+// function to sell stake
     function sellStake(uint _index)public payable{
         stakes[_index].isBought = false;
     }
 
+// function to get length of stake
     function getStakeLength() public view returns (uint) {
         return (stakeLength);
     }
