@@ -104,6 +104,21 @@ contract Staker {
         stakes[_index].isBought = true;
     }
 
+    // change ownership
+    function passOwnership(uint256 _index, address currentOwner, address newOwner) public {
+        require(msg.sender == currentOwner, "You are not the owner! so you can't ownership.");
+        require(
+            IERC20Token(cUsdTokenAddress).transferFrom(
+                msg.sender,
+                stakes[_index].owner,
+                stakes[_index].price
+            ),
+            "Transaction could not be performed"
+        );
+
+        stakes[_index].owner = payable(newOwner);
+    }
+
     function sellStake(uint256 _index) public payable {
         stakes[_index].isBought = false;
     }
