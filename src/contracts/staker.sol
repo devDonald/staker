@@ -1,42 +1,55 @@
-// SPDX-License-Identifier: MIT  
+// SPDX-License-Identifier: MIT
 
 pragma solidity >=0.7.0 <0.9.0;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 interface IERC20Token {
-  function transfer(address, uint256) external returns (bool);
-  function approve(address, uint256) external returns (bool);
-  function transferFrom(address, address, uint256) external returns (bool);
-  function totalSupply() external view returns (uint256);
-  function balanceOf(address) external view returns (uint256);
-  function allowance(address, address) external view returns (uint256);
+    function transfer(address, uint256) external returns (bool);
 
-  event Transfer(address indexed from, address indexed to, uint256 value);
-  event Approval(address indexed owner, address indexed spender, uint256 value);
+    function approve(address, uint256) external returns (bool);
+
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) external returns (bool);
+
+    function totalSupply() external view returns (uint256);
+
+    function balanceOf(address) external view returns (uint256);
+
+    function allowance(address, address) external view returns (uint256);
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 }
 
-contract Staker{
-    using SafeMath for uint;
-    struct Stake{
+
+contract Staker {
+    struct Stake {
         address payable owner;
-        uint percentage;
-        uint price;
+        uint256 percentage;
+        uint256 price;
         bool canVote;
         bool isBought;
     }
 
     address internal adminAddress = msg.sender;
 
+    mapping(uint256 => Stake) internal stakes;
+    uint256 stakeLength = 0;
 
-    mapping (uint => Stake) internal stakes;
-    uint stakeLength = 0;
-    
-    modifier isAdmin(){
-        require(msg.sender == adminAddress,"Only the admin can access this");
+    modifier isAdmin() {
+        require(msg.sender == adminAddress, "Only the admin can access this");
         _;
     }
 
-    address internal cUsdTokenAddress = 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
+    address internal cUsdTokenAddress =
+        0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
 
 // function to add stake
     function addStake(
@@ -51,9 +64,8 @@ contract Staker{
             false,
             false
         );
-        
+
         stakeLength++;
-        
     }
 // function to edit a stake
     function editStake(uint _percentage, uint _price, uint _index)public isAdmin(){
@@ -70,7 +82,7 @@ contract Staker{
         bool
     ){
         Stake storage stake = stakes[_index];
-        return(
+        return (
             stake.owner,
             stake.percentage,
             stake.price,
@@ -79,14 +91,14 @@ contract Staker{
         );
     }
 // function to check if user is admin
-    function isUserAdmin(address _address) public view returns (bool){
-        if(_address == adminAddress){
+    function isUserAdmin(address _address) public view returns (bool) {
+        if (_address == adminAddress) {
             return true;
-        }else{
-          return false;  
+        } else {
+            return false;
         }
-        
     }
+
 
 // function to buy stake
     function buyStake(uint _index)public payable{
@@ -109,7 +121,27 @@ contract Staker{
 
 // function to get length of stake
     function getStakeLength() public view returns (uint) {
-        return (stakeLength);
+
+    // change ownership
+    function passOwnership(uint256 _index, address currentOwner, address newOwner) public {
+        require(msg.sender == currentOwner, "You are not the owner! so you can't ownership.");
+        require(
+            IERC20Token(cUsdTokenAddress).transferFrom(
+                msg.sender,
+                stakes[_index].owner,
+                stakes[_index].price
+            ),
+            "Transaction could not be performed"
+        );
+
+        stakes[_index].owner = payable(newOwner);
     }
 
+    function sellStake(uint256 _index) public payable {
+        stakes[_index].isBought = false;
+    }
+
+    function getStakeLength() public view returns (uint256) {
+        return (stakeLength);
+    }
 }

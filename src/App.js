@@ -10,6 +10,7 @@ import staker from "./contracts/staker.abi.json";
 import IERC from "./contracts/ierc.abi.json";
 import Stocks from "./components/Stocks";
 import AddStock from "./components/AddStock";
+import Notification from "./components/Notification";
 
 const ERC20_DECIMALS = 18;
 
@@ -23,6 +24,7 @@ function App() {
   const [cUSDBalance, setcUSDBalance] = useState(0);
   const [stakes, setStakes] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  let notification;
 
   const celoConnect = async () => {
     if (window.celo) {
@@ -36,14 +38,16 @@ function App() {
 
         kit.defaultAccount = user_address;
 
-        await setAddress(user_address);
-        await setKit(kit);
-        console.log(user_address);
+        // removed await
+        setAddress(user_address);
+        setKit(kit);
       } catch (error) {
-        console.log(error);
+        // removed error console.log and pushed error to notification
+        notification = error;
       }
     } else {
-      console.log("Error");
+      // send notice on failed connection
+      notification = "Couldn't make connection to CELO";
     }
   };
 
@@ -56,7 +60,8 @@ function App() {
       setcontract(contract);
       setcUSDBalance(USDBalance);
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
   }, [address, kit]);
   const getStocks = async () => {
@@ -94,7 +99,8 @@ function App() {
       getBalance();
       getStocks();
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
   };
 
@@ -104,7 +110,8 @@ function App() {
       getBalance();
       getStocks();
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
   };
 
@@ -113,7 +120,8 @@ function App() {
       const admin = await contract.methods.isUserAdmin(address).call();
       setIsAdmin(admin);
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
   };
 
@@ -123,7 +131,8 @@ function App() {
         .addStake(_percentage, _price)
         .send({ from: address });
     } catch (error) {
-      console.log(error);
+      // removed error console.log and pushed error to notification
+      notification = error;
     }
     getStocks();
   };
@@ -136,7 +145,6 @@ function App() {
     if (kit && address) {
       getBalance();
     } else {
-      console.log("no kit");
     }
   }, [kit, address]);
 
@@ -149,6 +157,7 @@ function App() {
   return (
     <div>
       <Navbar balance={cUSDBalance} />
+      {notification && <Notification msg={notification} />}
       <Stocks
         stocks={stakes}
         isAdmin={isAdmin}
