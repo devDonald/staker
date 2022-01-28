@@ -5,4 +5,4 @@ Have a specialized page for  personal shares
 Make a real NFT with ERC721
 
 
-https://61d466c37b97fd36eb83084b--silly-franklin-e13ee5.netlify.app/
+https://silly-franklin-e13ee5.netlify.app/

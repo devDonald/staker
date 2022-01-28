@@ -13,7 +13,7 @@ import AddStock from "./components/AddStock";
 
 const ERC20_DECIMALS = 18;
 
-const contractAddress = "0xc07d8aDD4087cA160216219db57453ee67CEfe0e";
+const contractAddress = "0x6dAfeeD13B16C65722F0Ad8445A8Dfd1E1716Eb2";
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 
 function App() {
@@ -82,7 +82,6 @@ function App() {
   };
 
   const buyStock = async (_index) => {
-    console.log("kflms");
     const cUSDContract = new kit.web3.eth.Contract(IERC, cUSDContractAddress);
     try {
       const price = new BigNumber(stakes[_index].price)
