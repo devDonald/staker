@@ -12,8 +12,10 @@ import Stocks from "./components/Stocks";
 import AddStock from "./components/AddStock";
 import Notification from "./components/Notification";
 
-// import constants from constants.js
-import { ERC20_DECIMALS, contractAddress, cUSDContractAddress } from "./utils/constants";
+const ERC20_DECIMALS = 18;
+
+const contractAddress = "0x6dAfeeD13B16C65722F0Ad8445A8Dfd1E1716Eb2";
+const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 
 function App() {
   const [contract, setcontract] = useState(null);
